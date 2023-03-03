@@ -5,10 +5,11 @@
 #include <fcntl.h>
 
 #include "common.h"
+#include "dlfunc.h"
 
 #if defined(__aarch64__)
 #include <dlfcn.h>
-#include "dlfunc.h"
+//#include "dlfunc.h"
 #define NEED_CLASS_VISIBLY_INITIALIZED
 #endif
 
@@ -173,7 +174,7 @@ static int findInitClassSymbols(JNIEnv *env) {
 #endif
 }
 
-jlong __attribute__((naked)) Java_lab_galaxy_yahfa_HookMain_00024Utils_getThread(JNIEnv *env, jclass clazz) {
+jlong __attribute__((naked)) Java_com_android_flinger_yafya_YafyaMain_00024Utils_getThread(JNIEnv *env, jclass clazz) {
 #if defined(__aarch64__)
     __asm__(
             "mov x0, x19\n"
@@ -208,11 +209,11 @@ static int shouldVisiblyInit() {
 #endif
 }
 
-jboolean Java_lab_galaxy_yahfa_HookMain_00024Utils_shouldVisiblyInit(JNIEnv *env, jclass clazz) {
+jboolean Java_com_android_flinger_yafya_YafyaMain_00024Utils_shouldVisiblyInit(JNIEnv *env, jclass clazz) {
     return shouldVisiblyInit() != 0;
 }
 
-jint Java_lab_galaxy_yahfa_HookMain_00024Utils_visiblyInit(JNIEnv *env, jclass clazz, jlong thread) {
+jint Java_com_android_flinger_yafya_YafyaMain_00024Utils_visiblyInit(JNIEnv *env, jclass clazz, jlong thread) {
     if(!shouldVisiblyInit()) {
         return 0;
     }

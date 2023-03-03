@@ -11,8 +11,9 @@ public class Hook_Log_e {
     public static String methodSig = "(Ljava/lang/String;Ljava/lang/String;)I";
 
     public static int hook(String tag, String msg) {
-        Log.e("HookTest", "hook====" + tag + ", " + msg);
-        return backup(tag,msg);
+        Log.e("HookTest", "hook=fffffffffff===" + tag + ", " + msg);
+
+        return backup("777","888");
     }
 
     public static int target(String tag, String msg) {

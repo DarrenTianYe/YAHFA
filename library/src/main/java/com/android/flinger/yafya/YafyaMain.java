@@ -1,4 +1,4 @@
-package lab.galaxy.yahfa;
+package com.android.flinger.yafya;
 
 import android.util.Log;
 
@@ -7,15 +7,15 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.lang.reflect.Member;
+
 import android.os.Build;
 
 /**
  * Created by liuruikai756 on 28/03/2017.
  */
 
-public class HookMain {
-    private static final String TAG = HookMain.class.getSimpleName();
+public class YafyaMain {
+    private static final String TAG = YafyaMain.class.getSimpleName();
     // MakeInitializedClassesVisiblyInitialized is called explicitly
     // entry of jni methods would not be set to jni trampoline after hooked
     // isDebugModeEnabledR = BuildConfig.DEBUG;
@@ -27,7 +27,7 @@ public class HookMain {
 //    }
 
     static {
-        System.loadLibrary("yahfa");
+        System.loadLibrary("fingerCore");
         // Android SDK Ver
         int buildSdk = Build.VERSION.SDK_INT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

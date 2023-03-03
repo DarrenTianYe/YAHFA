@@ -2,12 +2,6 @@ package lab.galaxy.yahfa.demoApp;
 
 import android.app.Application;
 import android.content.Context;
-import android.os.Environment;
-
-import java.io.File;
-
-import dalvik.system.DexClassLoader;
-import lab.galaxy.yahfa.HookMain;
 
 /**
  * Created by liuruikai756 on 30/03/2017.

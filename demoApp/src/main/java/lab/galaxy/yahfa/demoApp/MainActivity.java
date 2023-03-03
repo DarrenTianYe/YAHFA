@@ -8,7 +8,8 @@ import android.widget.Button;
 
 import java.lang.reflect.Method;
 
-import lab.galaxy.yahfa.HookMain;
+import com.android.flinger.yafya.YafyaMain;
+
 
 public class MainActivity extends Activity {
     private static final String TAG = "origin";
@@ -27,7 +28,7 @@ public class MainActivity extends Activity {
 
                     Method backup = Hook_Log_e.class.getDeclaredMethod("backup", String.class, String.class);
 
-                    HookMain.findAndBackupAndHook(Hook_Log_e.class, "target", Hook_Log_e.methodSig, hook, backup);
+                    YafyaMain.findAndBackupAndHook(Hook_Log_e.class, "target", Hook_Log_e.methodSig, hook, backup);
 
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -39,7 +40,7 @@ public class MainActivity extends Activity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 Hook_Log_e.target("11", "2");
+                 Hook_Log_e.target("src_123", "dest_456");
             }
         });
     }

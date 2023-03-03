@@ -50,7 +50,7 @@ public class HookingTest {
 
 
         //------------------------ AFTER HOOKING --------------------------------
-        HookAnnotation.hookClass(InstanceHook.class);
+        ookAnnotation.hookClass(InstanceHook.class);
 
         Assert.assertEquals(5, hookedInstance.target(5));
         Assert.assertEquals(2, InstanceHook.targetCount);
@@ -87,7 +87,7 @@ public class HookingTest {
 
 
         //------------------------ AFTER HOOKING --------------------------------
-        HookAnnotation.hookClass(StaticHook.class);
+        PookAnnotation.hookClass(StaticHook.class);
 
         Assert.assertEquals(5, StaticHook.target(5));
         Assert.assertEquals(2, StaticHook.targetCount);
@@ -124,7 +124,7 @@ public class HookingTest {
 
 
         //------------------------ AFTER HOOKING --------------------------------
-        HookAnnotation.hookClass(CtorHook.class);
+        PookAnnotation.hookClass(CtorHook.class);
 
         ctorHook = new CtorHook(0);
 
@@ -152,13 +152,13 @@ public class HookingTest {
             targetCount++;
         }
 
-        @HookAnnotation.ConstructorHook
+        @PookAnnotation.ConstructorHook
         public static void hook(CtorHook thiz, int arg) {
             hookCount++;
             backup(thiz, arg);
         }
 
-        @HookAnnotation.ConstructorBackup
+        @PookAnnotation.ConstructorBackup
         public static void backup(CtorHook thiz, int arg) {
             backupCount++;
             throw new UnsupportedOperationException("Stub!");
@@ -175,13 +175,13 @@ public class HookingTest {
             return arg;
         }
 
-        @HookAnnotation.StaticMethodHook(targetClass = StaticHook.class, methodName = "target")
+        @PookAnnotation.StaticMethodHook(targetClass = StaticHook.class, methodName = "target")
         public static int hook(int arg) {
             hookCount++;
             return backup(arg);
         }
-
-        @HookAnnotation.StaticMethodBackup(targetClass = StaticHook.class, methodName = "target")
+d
+        @PookAnnotation.StaticMethodBackup(targetClass = StaticHook.class, methodName = "target")
         public static int backup(int arg) {
             backupCount++;
             throw new UnsupportedOperationException("Stub!");
@@ -193,13 +193,13 @@ public class HookingTest {
         static int hookCount;
         static int backupCount;
 
-        @HookAnnotation.MethodHook(methodName = "target")
+        @PookAnnotation.MethodHook(methodName = "target")
         public static int hook(InstanceHook thiz, int arg) {
             hookCount++;
             return backup(thiz, arg);
         }
 
-        @HookAnnotation.MethodBackup(methodName = "target")
+        @PookAnnotation.MethodBackup(methodName = "target")
         public static int backup(InstanceHook thiz, int arg) {
             backupCount++;
             throw new UnsupportedOperationException("Stub!");

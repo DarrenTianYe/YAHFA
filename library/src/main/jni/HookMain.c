@@ -17,7 +17,10 @@ static uint32_t kAccPreCompiled = 0x00200000;
 static jfieldID fieldArtMethod = NULL;
 
 
-void Java_lab_galaxy_yahfa_HookMain_init(JNIEnv *env, jclass clazz, jint sdkVersion) {
+//com.android.flinger.yafya
+//com_android_flinger_yafya
+
+JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_init(JNIEnv *env, jclass clazz, jint sdkVersion) {
     SDKVersion = sdkVersion;
     jclass classExecutable;
     LOGI("init to SDK %d", sdkVersion);
@@ -216,7 +219,7 @@ static void *getArtMethod(JNIEnv *env, jobject jmethod) {
 
 }
 
-jobject Java_lab_galaxy_yahfa_HookMain_findMethodNative(JNIEnv *env, jclass clazz,
+JNIEXPORT jobject JNICALL Java_com_android_flinger_yafya_YafyaMain_findMethodNative(JNIEnv *env, jclass clazz,
                                                         jclass targetClass, jstring methodName,
                                                         jstring methodSig) {
     const char *c_methodName = (*env)->GetStringUTFChars(env, methodName, NULL);
@@ -242,8 +245,8 @@ jobject Java_lab_galaxy_yahfa_HookMain_findMethodNative(JNIEnv *env, jclass claz
     (*env)->ReleaseStringUTFChars(env, methodSig, c_methodSig);
     return ret;
 }
-
-jboolean Java_lab_galaxy_yahfa_HookMain_backupAndHookNative(JNIEnv *env, jclass clazz,
+JNIEXPORT jboolean JNICALL
+ Java_com_android_flinger_yafya_YafyaMain_backupAndHookNative(JNIEnv *env, jclass clazz,
                                                             jobject target, jobject hook,
                                                             jobject backup) {
 

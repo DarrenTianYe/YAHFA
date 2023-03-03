@@ -17,6 +17,19 @@ android {
                 arguments "-DANDROID_STL=none"
             }
         }
+        //ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
+        ndk {
+            //选择要添加的对应cpu类型的.so库。
+           abiFilters  'armeabi-v7a'
+           // abiFilters  'arm64-v8a'
+            // 还可以添加 armeabi-v7a
+            // 'arm64-v8a', 64 bit ARM architecture,it can use v7 version
+            //              unless you are too much concerned about performance
+            // mips,mips64, There are no devices with MIPS
+            //  x86_64, No android devices and anyway it can use X86 version
+            //  armeabi, very old architecture. Unsupported after Android 4.4
+            // 'x86', Intel based devices
+        }
     }
     externalNativeBuild {
         cmake {
@@ -41,7 +54,7 @@ android {
 }
 
 dependencies {
-    implementation 'io.github.rk700:dlfunc:0.1.0'
+    //implementation 'io.github.rk700:dlfunc:0.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
 }

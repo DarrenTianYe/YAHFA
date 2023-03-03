@@ -1,4 +1,4 @@
-package lab.galaxy.yahfa;
+package com.android.flinger.yafya;
 
 import android.util.Log;
 
@@ -18,8 +18,8 @@ import java.util.Map;
  *
  * Target class, method name and signature are automatically inferred from the hook when possible
  */
-public class HookAnnotation {
-    public static final String TAG = HookAnnotation.class.getSimpleName();
+public class PookAnnotation {
+    public static final String TAG = PookAnnotation.class.getSimpleName();
 
     public static final String HOOK_SUFFIX = "Hook";
     public static final String BACKUP_SUFFIX = "Backup";
@@ -160,7 +160,7 @@ public class HookAnnotation {
             Method backup = backups.get(target);
             Throwable err = null;
             try {
-                HookMain.backupAndHook(target, hook, backup);
+                YafyaMain.backupAndHook(target, hook, backup);
                 Log.i(TAG, "Hooked " + target + ": hook=" + hook + (backup == null ? "" : ", backup=" + backup));
             } catch (Throwable t) {
                 Log.e(TAG, "Failed to hooked " + target + ": hook=" + hook + (backup == null ? "" : ", backup=" + backup), t);
