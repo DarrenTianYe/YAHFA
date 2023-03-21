@@ -18,6 +18,7 @@
 #define METHOD_PTR setupParam_64
 #endif
 
+
 static jclass jniHelper = NULL;
 static jmethodID jniCall = NULL;
 

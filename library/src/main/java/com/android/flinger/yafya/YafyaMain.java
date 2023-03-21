@@ -211,6 +211,10 @@ public class YafyaMain {
 
     private static native void init(int sdkVersion);
 
+
+
+    public static native void start(int info);
+
     public static class Utils {
         // https://github.com/PAGalaxyLab/YAHFA/pull/133#issuecomment-743728607
         // class may be visible initialized after it's initialized after Android R
@@ -229,5 +233,8 @@ public class YafyaMain {
         private static native boolean shouldVisiblyInit();
         private static native int visiblyInit(long thread);
         private static native long getThread();
+
+
+
     }
 }
