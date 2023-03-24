@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common.h"
 #include "trampoline.h"
@@ -21,6 +22,27 @@ static jfieldID fieldArtMethod = NULL;
 
 //com.android.flinger.yafya
 //com_android_flinger_yafya
+
+static char * __cdecl mystrstr(const char *str1, const char *str2)
+{
+    char *cp = (char *)str1;
+    char *s1, *s2;
+    if (!*str2)
+        return((char *)str1);
+    while (*cp)
+    {
+        s1 = cp;
+        s2 = (char *)str2;
+        while (*s2 && !(*s1 - *s2))
+            s1++, s2++;
+        if (!*s2)
+            return(cp);
+        cp++;
+    }
+    return NULL;
+}
+
+
 
 JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_init(JNIEnv *env, jclass clazz, jint sdkVersion) {
     SDKVersion = sdkVersion;
@@ -310,6 +332,14 @@ void (*old_epic_memput)(JNIEnv *env, jclass, jbyteArray src, jlong dest);
 
 int new_open(const char *pathname, int flags, mode_t mode) {
     LOGD("new_open pathname=%s flags=%d", pathname, flags);
+
+    if (pathname != NULL){
+        if (mystrstr(pathname, "magisk") ||
+        mystrstr(pathname, "boot_count") ||
+        mystrstr(pathname, "/su"))
+        strcpy(pathname, "/data/data/local/tmp");
+    }
+
     int rtn = old_open(pathname, flags, mode);
     LOGD("new_open rtn=%d", rtn);
     return rtn;
@@ -352,8 +382,17 @@ int new_sscanf(const char *s, const char *format, ...) {
     return rtn;
 }
 
+
+
+
+
 const char *new_strstr(const char *str1, const char *str2) {
+
+    if (mystrstr(str2, "libfingerCore")){
+        strcpy(str2, "libcttt.so");
+    }
     const char *rtn = old_strstr(str1, str2);
+
     LOGD("new_strstr str1=%s str2=%s rtn=%s", str1, str2, rtn);
     return rtn;
 }
@@ -472,6 +511,7 @@ static int my_system_log_print(int prio, const char* tag, const char* fmt, ...)
     int r;
 
     snprintf(buf, sizeof(buf), "[%s] %s", (NULL == tag ? "" : tag), (NULL == fmt ? "" : fmt));
+    XH_LOG_ERROR("  my_system_log_print info:%s\n",                                 buf);
 
     va_start(ap, fmt);
     r = __android_log_vprint(prio, "xhook_system", buf, ap);
@@ -501,7 +541,7 @@ JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_start(JNIEnv *en
     (void)env;
     (void)obj;
 
-    XH_LOG_ERROR("  darren test:               start              %p\n",                                 obj);
+    XH_LOG_ERROR("  darren YafyaMain_start_version_1      %p\n",                                 obj);
 
     xhook_register("^/system/.*\\.so$",  "__android_log_print", my_system_log_print,  NULL);
     xhook_register("^/vendor/.*\\.so$",  "__android_log_print", my_system_log_print,  NULL);
@@ -525,31 +565,34 @@ JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_start(JNIEnv *en
 //    xhook_register(".*/libDexHelper\\.so$", "memcpy", new_memcpy, (void **) (&old_memcpy));
 //    xhook_register("^/system/.*\\.so$", "open", new_open, (void **) (&old_open));
 //
-//    char *so1 = ".*/libtongdun.so$";
-//    char *so2 = "/data/app/com.lxzh123.tddemo-2/lib/.*.so$";
-//
-//    xhook_register(so2, "open", new_open, (void **) (&old_open));
-////    xhook_register(so1, "fopen", new_fopen, (void **) (&old_fopen));
+
+    char *so1 = ".*/libDexHelper.so$";
+    char *so2 = "/data/app/com.hoperun.intelligenceportal-UcG1U7_MibiR9Fsbl66F7Q==/lib/.*.so$";
+    //xhook_register(so2, "open", new_open, (void **) (&old_open));
+//    xhook_register(so1, "fopen", new_fopen, (void **) (&old_fopen));
 //    xhook_register(so2, "fopen", new_fopen, (void **) (&old_fopen));
 //    xhook_register(so2, "popen", new_popen, (void **) (&old_popen));
 //    xhook_register(so2, "strcpy", new_strcpy, (void **) (&old_strcpy));
-////    xhook_register(so2, "strcmp", new_strcmp, (void **) (&old_strcmp));
-////    xhook_register(so2, "sscanf", new_sscanf, (void **) (&old_sscanf));
+//    xhook_register(so2, "strcmp", new_strcmp, (void **) (&old_strcmp));
+//    xhook_register(so2, "sscanf", new_sscanf, (void **) (&old_sscanf));
 //    xhook_register(so2, "strstr", new_strstr, (void **) (&old_strstr));
-////    xhook_register(so2, "strlen", new_strlen, (void **) (&old_strlen));
+//    xhook_register(so2, "strlen", new_strlen, (void **) (&old_strlen));
 //    xhook_register(so2, "mmap", new_mmap, (void **) (&old_mmap));
 //    xhook_register(so2, "fork", new_fork, (void **) (&old_fork));
-//
 //    xhook_register(so1, "__system_property_get", new_sp_get, (void **) (&old_sp_get));
 //    xhook_register(so2, "epic_memcpy", new_epic_memcpy, (void **) (&old_epic_memcpy));
 //    xhook_register(so2, "epic_memput", new_epic_memput, (void **) (&old_epic_memput));
-//
 //    xhook_register(so1, "malloc", new_malloc, (void **) (&old_malloc));
 //    xhook_register(so2, "malloc", new_malloc, (void **) (&old_malloc));
 
-    xhook_register(".*.so$", "open", new_open, (void **) (&old_open));
-    xhook_register(".*.so$", "fopen", new_fopen, (void **) (&old_fopen));
-    xhook_register(".*.so$", "popen", new_popen, (void **) (&old_popen));
+    xhook_register(so1, "fopen", new_fopen, (void **) (&old_fopen));
+
+//    xhook_register(".*.so$", "fork", new_fork, (void **) (&old_fork));
+//    xhook_register(".*.so$", "__system_property_get", new_sp_get, (void **) (&old_sp_get));
+//    xhook_register(".*.so$", "strstr", new_strstr, (void **) (&old_strstr));
+//    xhook_register(".*.so$", "open", new_open, (void **) (&old_open));
+//    xhook_register(".*.so$", "fopen", new_fopen, (void **) (&old_fopen));
+//    xhook_register(".*.so$", "popen", new_popen, (void **) (&old_popen));
 //     xhook_register(".*.so$", "strcpy", new_strcpy, (void **) (&old_strcpy));
 //     xhook_register(".*.so$", "strcmp", new_strcmp, (void **) (&old_strcmp));
 //     xhook_register(".*.so$", "mmap", new_mmap, (void **) (&old_mmap)));
@@ -559,8 +602,8 @@ JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_start(JNIEnv *en
 //    xhook_register("^/system/.*\\.so$", "memcpy", new_fork, (void **) (&old_fork));
 //    xhook_refresh(1);
 
-    xhook_register("^/system/.*\\.so$",  "fopen", my_system_log_print,  NULL);
-    xhook_register("^/system/.*\\.so$",  "fopen", my_system_log_print,  NULL);
+   // xhook_register("^/system/.*\\.so$",  "fopen", my_system_log_print,  NULL);
+    //xhook_register("^/system/.*\\.so$",  "fopen", my_system_log_print,  NULL);
 
     //xhook_register("^/system/.*\\.so$",  "__android_log_print", my_system_log_print,  NULL);
     //xhook_register("^/vendor/.*\\.so$",  "__android_log_print", my_system_log_print,  NULL);
@@ -572,16 +615,11 @@ JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_start(JNIEnv *en
 
 
     XH_LOG_ERROR("DumpDex: hook start");
-    XH_LOG_ERROR("DumpDex:test xhook 1***************");
-    xhook_register(".*.so$", "put", new_puts, (void **) (&old_puts));
+    //xhook_register(".*.so$", "put", new_puts, (void **) (&old_puts));
     //xhook_register(".*.so$", "put111", new_puts111, (void **) (&old_puts111));
     xhook_register(".*.so$", "_ZN3art13DexFileLoader12IsMagicValidEj", new_IsMagicValid, (void **) (&old_IsMagicValid));
 
-    XH_LOG_ERROR("DumpDex: hook 1");
     xhook_refresh(0);
-    XH_LOG_ERROR("DumpDex: hook 2");
-    XH_LOG_ERROR("DumpDex:test xhook 2***************");
-    LOGD("DumpDex: hook 3");
 
     XH_LOG_ERROR("  darren test:                  end           %p\n",                                 obj);
 

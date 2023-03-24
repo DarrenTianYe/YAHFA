@@ -36,13 +36,6 @@ android {
             path 'CMakeLists.txt'
         }
     }
-    buildFeatures {
-        prefab true
-    }
-
-    packagingOptions {
-        exclude "**/libdlfunc.so"
-    }
 
 //    testOptions {
 //        unitTests {

@@ -32,8 +32,7 @@ public class MainActivity extends Activity {
 
                     YafyaMain.findAndBackupAndHook(Hook_Log_e.class, "target", Hook_Log_e.methodSig, hook, backup);
 
-
-                    YafyaMain.start(1);
+                   // YafyaMain.start(1);
 
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -44,6 +43,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                  Hook_Log_e.target("src_123", "dest_456");
 
                  Log.e("darren", "test end  "+ getPackageName());

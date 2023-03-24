@@ -35,7 +35,7 @@ public class Pre_So_Activity extends Activity {
 
     ArrayAdapter<String> adapterItems;
 
-    public String packageName = "com.hoperun.intelligenceportal";
+    public String packageName = "";
     public String finalLibPath = "";
 
     private boolean hasRootAccess = false;
@@ -58,10 +58,9 @@ public class Pre_So_Activity extends Activity {
 
         autoCompleteTextView = findViewById(R.id.auto_complete_txt);
         libPath = findViewById(R.id.path_to_lib);
-        githubButton = findViewById(R.id.github_button);
         injectButton = findViewById(R.id.inject_button);
         uninjectButton = findViewById(R.id.uninject_button);
-        console = findViewById(R.id.console);
+        console = findViewById(R.id.textView);
 
         //Set installed packages
         adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, getInstalledApps());
@@ -106,13 +105,7 @@ public class Pre_So_Activity extends Activity {
             }
         });
 
-        githubButton.setOnClickListener(new View.OnClickListener()  {
-            @Override
-            public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("xxx"));
-                startActivity(browserIntent);
-            }
-        });
+
 
         //Root perm window
         Shell.getShell(shell -> {
@@ -133,16 +126,16 @@ public class Pre_So_Activity extends Activity {
     }
 
     private void uninjectLibrary() {
-        String command = "resetprop --delete wrap." + packageName;
-        Shell.cmd(command).exec();
-        Toast.makeText(thisInstance, "Uninjected!", Toast.LENGTH_LONG).show();
+//        String command = "resetprop --delete wrap." + packageName;
+//        Shell.cmd(command).exec();
+        Toast.makeText(thisInstance, "nothings !", Toast.LENGTH_LONG).show();
     }
 
     private void checkLibPath() {
         String path = libPath.getText().toString();
         File file = new File(path);
-        finalLibPath = "/data/data/com.hoperun.intelligenceportal/" + file.getName();
-        String cmd = "cp " + path + " /data/data/com.hoperun.intelligenceportal/" + file.getName();
+        finalLibPath = " /data/data/"+packageName+"/" + file.getName();
+        String cmd = "cp " + path + finalLibPath;
         Log.e("darren", "cmd:"+cmd);
         Shell.cmd(cmd).exec();
     }
@@ -153,11 +146,11 @@ public class Pre_So_Activity extends Activity {
 
         for (ApplicationInfo s : packages) {
             //Filter system apps and this app
-            if (s.sourceDir.startsWith("/data") && !s.sourceDir.contains("com.reveny.ldpreload.injector") ) {
-
+            if (s.sourceDir.startsWith("/data")) {
 
                 if (s.packageName.contains("com.system.installer") ||
                         s.packageName.contains("com.hoperun.intelligenceportal") ||
+                        s.packageName.contains("com.ccb.longjiLife") ||
                         s.packageName.contains("com.example.nativecpp")
                 ){
                     ret.add(s.packageName);
