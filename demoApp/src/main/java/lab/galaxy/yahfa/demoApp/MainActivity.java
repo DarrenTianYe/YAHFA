@@ -32,7 +32,15 @@ public class MainActivity extends Activity {
 
                     YafyaMain.findAndBackupAndHook(Hook_Log_e.class, "target", Hook_Log_e.methodSig, hook, backup);
 
-                   // YafyaMain.start(1);
+
+                    try{
+                        SystemPropertyPook.HelloPookSystemProps(getApplication());
+                        SystemPropertyPook.HelloPookSystemProps_1(getApplication());
+                        Log.e("darren:", "HelloPookSystemProps end");
+                    }catch (Throwable e){
+                        e.printStackTrace();
+                    }
+                    YafyaMain.start(1);
 
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -45,6 +53,9 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
 
                  Hook_Log_e.target("src_123", "dest_456");
+
+                 System.getProperty("xxxxx");
+                System.getProperty("xxxxx","yyyyy");
 
                  Log.e("darren", "test end  "+ getPackageName());
             }

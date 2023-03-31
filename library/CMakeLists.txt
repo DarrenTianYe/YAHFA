@@ -33,6 +33,7 @@ add_library( # Specifies the name of the library.
             src/main/jni/trampoline.c
             src/main/jni/utils.c
             src/main/jni/dlfunc.c
+        src/main/jni/fake_dlopen.c
 
             src/main/jni/xhook/xhook.c
             src/main/jni/xhook/xh_core.c

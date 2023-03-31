@@ -3,15 +3,19 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <dlfcn.h>
+
 
 #include "common.h"
 #include "dlfunc.h"
+#include "trampoline.h"
 
 #if defined(__aarch64__)
 #include <dlfcn.h>
 //#include "dlfunc.h"
 #define NEED_CLASS_VISIBLY_INITIALIZED
 #endif
+#define NEED_CLASS_VISIBLY_INITIALIZED
 
 static char *classLinker = NULL;
 typedef void (*InitClassFunc)(void *, void *, int);
@@ -60,10 +64,10 @@ commonFindOffset(void *start, size_t max_count, size_t step, void *value, int st
 }
 
 static int searchClassLinkerOffset(JavaVM *vm, void *runtime_instance, JNIEnv *env, void *libart_handle) {
-#ifndef NEED_CLASS_VISIBLY_INITIALIZED
-    return -1;
-#else
-    void *class_linker_vtable = dlfunc_dlsym(env, libart_handle, "_ZTVN3art11ClassLinkerE");
+//#ifndef NEED_CLASS_VISIBLY_INITIALIZED
+//    return -1;
+//#else
+    void *class_linker_vtable = art_dlsym(libart_handle, "_ZTVN3art11ClassLinkerE");
     if (class_linker_vtable != NULL) {
         // Before Android 9, class_liner do not hava virtual table, so class_linker_vtable is null.
         class_linker_vtable = (char *) class_linker_vtable + kPointerSize * kVTablePosition;
@@ -118,7 +122,7 @@ static int searchClassLinkerOffset(JavaVM *vm, void *runtime_instance, JNIEnv *e
         }
     }
     return class_linker_offset_value;
-#endif
+//#endif
 }
 
 static int findInitClassSymbols(JNIEnv *env) {
@@ -129,17 +133,18 @@ static int findInitClassSymbols(JNIEnv *env) {
     (*env)->GetJavaVM(env, &jvm);
     LOGI("JavaVM is %p", jvm);
 
-    if(dlfunc_init(env) != JNI_OK) {
-        LOGE("dlfunc init failed");
-        return 1;
-    }
-    void *handle = dlfunc_dlopen(env, "libart.so", RTLD_LAZY);
+//    if(dlfunc_init(env) != JNI_OK) {
+//        LOGE("dlfunc init failed");
+//        return 1;
+//    }
+
+    void *handle = art_dlopen("libart.so", RTLD_LAZY);
     if(handle == NULL) {
         LOGE("failed to find libart.so handle");
         return 1;
     }
     else {
-        void *runtime_bss = dlfunc_dlsym(env, handle, "_ZN3art7Runtime9instance_E");
+        void *runtime_bss = art_dlsym(handle, "_ZN3art7Runtime9instance_E");
         if(!runtime_bss) {
             LOGE("failed to find Runtime::instance symbol");
             return 1;
@@ -150,7 +155,6 @@ static int findInitClassSymbols(JNIEnv *env) {
             return 1;
         }
         LOGI("runtime bss is at %p, runtime instance is at %p", runtime_bss, runtime);
-
         int class_linker_offset_in_Runtime = searchClassLinkerOffset(jvm, runtime, env, handle);
         LOGI("find class_linker offset in_Runtime --> %d ", class_linker_offset_in_Runtime);
 
@@ -160,7 +164,7 @@ static int findInitClassSymbols(JNIEnv *env) {
         }
 
         classLinker = readAddr(runtime + class_linker_offset_in_Runtime);
-        MakeInitializedClassesVisiblyInitialized = dlfunc_dlsym(env, handle,
+        MakeInitializedClassesVisiblyInitialized = art_dlsym(handle,
                 "_ZN3art11ClassLinker40MakeInitializedClassesVisiblyInitializedEPNS_6ThreadEb");
 //        "_ZN3art11ClassLinker12AllocIfTableEPNS_6ThreadEm"); // for test
         if(!MakeInitializedClassesVisiblyInitialized) {
@@ -173,8 +177,8 @@ static int findInitClassSymbols(JNIEnv *env) {
     return 0;
 #endif
 }
-
-jlong __attribute__((naked)) Java_com_android_flinger_yafya_YafyaMain_00024Utils_getThread(JNIEnv *env, jclass clazz) {
+//JNIEXPORT void JNICALL
+JNIEXPORT jlong __attribute__((naked)) JNICALL Java_com_android_flinger_yafya_YafyaMain_getThread(JNIEnv *env, jclass clazz) {
 #if defined(__aarch64__)
     __asm__(
             "mov x0, x19\n"
@@ -208,12 +212,11 @@ static int shouldVisiblyInit() {
     else return 1;
 #endif
 }
-
-jboolean Java_com_android_flinger_yafya_YafyaMain_00024Utils_shouldVisiblyInit(JNIEnv *env, jclass clazz) {
+JNIEXPORT jboolean JNICALL Java_com_android_flinger_yafya_YafyaMain_shouldVisiblyInit(JNIEnv *env, jclass clazz) {
     return shouldVisiblyInit() != 0;
 }
 
-jint Java_com_android_flinger_yafya_YafyaMain_00024Utils_visiblyInit(JNIEnv *env, jclass clazz, jlong thread) {
+JNIEXPORT jint JNICALL Java_com_android_flinger_yafya_YafyaMain_visiblyInit(JNIEnv *env, jclass clazz, jlong thread) {
     if(!shouldVisiblyInit()) {
         return 0;
     }

@@ -110,6 +110,8 @@ JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_init(JNIEnv *env
     }
 
     setupTrampoline(OFFSET_entry_point_from_quick_compiled_code_in_ArtMethod);
+
+    init_dlopen();
 }
 
 static uint32_t getFlags(char *method) {
@@ -220,7 +222,7 @@ static int doBackupAndHook(void *targetMethod, void *hookMethod, void *backupMet
 
     res += replaceMethod(targetMethod, hookMethod, 0);
 
-    LOGI("hook and backup done");
+    LOGI("hook and backup done ==%p, %p", targetMethod, hookMethod);
     return res;
 }
 
@@ -289,6 +291,11 @@ JNIEXPORT jboolean JNICALL
     }
 }
 
+
+
+
+
+
 /**
  * xhook start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  *
@@ -331,7 +338,7 @@ void (*old_epic_memcpy)(JNIEnv *env, jclass, jlong src, jlong dest, jint length)
 void (*old_epic_memput)(JNIEnv *env, jclass, jbyteArray src, jlong dest);
 
 int new_open(const char *pathname, int flags, mode_t mode) {
-    LOGD("new_open pathname=%s flags=%d", pathname, flags);
+    //LOGD("new_open pathname=%s flags=%d", pathname, flags);
 
     if (pathname != NULL){
         if (mystrstr(pathname, "magisk") ||
@@ -341,12 +348,12 @@ int new_open(const char *pathname, int flags, mode_t mode) {
     }
 
     int rtn = old_open(pathname, flags, mode);
-    LOGD("new_open rtn=%d", rtn);
+    //LOGD("new_open rtn=%d", rtn);
     return rtn;
 }
 
 FILE *new_fopen(const char *path, const char *mode) {
-    LOGD("new_fopen path=%s mode=%d", path, *mode);
+    //LOGD("new_fopen path=%s mode=%d", path, *mode);
     FILE *rtn = old_fopen(path, mode);
 //    LOGD("new_fopen rtn=%d", (int)rtn);
     return rtn;
@@ -393,7 +400,7 @@ const char *new_strstr(const char *str1, const char *str2) {
     }
     const char *rtn = old_strstr(str1, str2);
 
-    LOGD("new_strstr str1=%s str2=%s rtn=%s", str1, str2, rtn);
+    //LOGD("new_strstr str1=%s str2=%s rtn=%s", str1, str2, rtn);
     return rtn;
 }
 
@@ -543,9 +550,9 @@ JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_start(JNIEnv *en
 
     XH_LOG_ERROR("  darren YafyaMain_start_version_1      %p\n",                                 obj);
 
-    xhook_register("^/system/.*\\.so$",  "__android_log_print", my_system_log_print,  NULL);
-    xhook_register("^/vendor/.*\\.so$",  "__android_log_print", my_system_log_print,  NULL);
-    xhook_register(".*/liblog\\.so$", "__android_log_print", my_libtest_log_print, NULL);
+//    xhook_register("^/system/.*\\.so$",  "__android_log_print", my_system_log_print,  NULL);
+//    xhook_register("^/vendor/.*\\.so$",  "__android_log_print", my_system_log_print,  NULL);
+//    xhook_register(".*/liblog\\.so$", "__android_log_print", my_libtest_log_print, NULL);
 
     //just for testing
 //    xhook_ignore(".*/liblog\\.so$", "__android_log_print"); //ignore __android_log_print in liblog.so
@@ -585,7 +592,7 @@ JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_start(JNIEnv *en
 //    xhook_register(so1, "malloc", new_malloc, (void **) (&old_malloc));
 //    xhook_register(so2, "malloc", new_malloc, (void **) (&old_malloc));
 
-    xhook_register(so1, "fopen", new_fopen, (void **) (&old_fopen));
+  //  xhook_register(so1, "fopen", new_fopen, (void **) (&old_fopen));
 
 //    xhook_register(".*.so$", "fork", new_fork, (void **) (&old_fork));
 //    xhook_register(".*.so$", "__system_property_get", new_sp_get, (void **) (&old_sp_get));
@@ -595,8 +602,8 @@ JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_start(JNIEnv *en
 //    xhook_register(".*.so$", "popen", new_popen, (void **) (&old_popen));
 //     xhook_register(".*.so$", "strcpy", new_strcpy, (void **) (&old_strcpy));
 //     xhook_register(".*.so$", "strcmp", new_strcmp, (void **) (&old_strcmp));
-//     xhook_register(".*.so$", "mmap", new_mmap, (void **) (&old_mmap)));
-//     xhook_register(".*.so$", "fork", new_fork, (void **) (&old_fork)));
+   //  xhook_register(".*.so$", "mmap", new_mmap, (void **) (&old_mmap));
+     xhook_register(".*.so$", "fork", new_fork, (void **) (&old_fork));
 //     xhook_register(".*.so$", "__system_property_get", new_system_property_get,
 //                   (void **) (&old_system_property_get)));
 //    xhook_register("^/system/.*\\.so$", "memcpy", new_fork, (void **) (&old_fork));
@@ -621,6 +628,7 @@ JNIEXPORT void JNICALL Java_com_android_flinger_yafya_YafyaMain_start(JNIEnv *en
 
     xhook_refresh(0);
 
+    int fd = open("/sdcard/hello11111111111.txt", 1);
     XH_LOG_ERROR("  darren test:                  end           %p\n",                                 obj);
 
 }

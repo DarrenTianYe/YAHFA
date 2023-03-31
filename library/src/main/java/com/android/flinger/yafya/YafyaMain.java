@@ -26,6 +26,26 @@ public class YafyaMain {
 //        isDebugModeEnabledR = b;
 //    }
 
+    private static Object sVmRuntime;
+    private static Method setHiddenApiExemptions;
+
+    static {
+        try {
+            Method forName = Class.class.getDeclaredMethod("forName", String.class);
+            Method getDeclaredMethod = Class.class.getDeclaredMethod("getDeclaredMethod", String.class, Class[].class);
+
+            Log.e(TAG, "getDeclaredMethod:" + getDeclaredMethod);
+
+            Class<?> vmRuntimeClass = (Class<?>) forName.invoke(null, "dalvik.system.VMRuntime");
+            Method getRuntime = (Method) getDeclaredMethod.invoke(vmRuntimeClass, "getRuntime", null);
+            setHiddenApiExemptions = (Method) getDeclaredMethod.invoke(vmRuntimeClass, "setHiddenApiExemptions", new Class[]{String[].class});
+            sVmRuntime = getRuntime.invoke(null);
+        } catch (Throwable e) {
+            Log.e(TAG, "reflect bootstrap failed:", e);
+        }
+    }
+
+
     static {
         System.loadLibrary("fingerCore");
         // Android SDK Ver
@@ -35,6 +55,7 @@ public class YafyaMain {
                 if(Build.VERSION.PREVIEW_SDK_INT > 0)
                     buildSdk += 1;
             } catch (Throwable e) {
+                e.printStackTrace();
                 // ignore
             }
         }
@@ -209,6 +230,11 @@ public class YafyaMain {
     // JNI.ToReflectedMethod() could return either Method or Constructor
     public static native Object findMethodNative(Class targetClass, String methodName, String methodSig);
 
+
+    /**
+     * for xhook init
+     * @param sdkVersion
+     */
     private static native void init(int sdkVersion);
 
 
@@ -229,12 +255,8 @@ public class YafyaMain {
                 return 0;
             }
         }
-
-        private static native boolean shouldVisiblyInit();
-        private static native int visiblyInit(long thread);
-        private static native long getThread();
-
-
-
     }
+    public static native boolean shouldVisiblyInit();
+    public static native int visiblyInit(long thread);
+    public static native long getThread();
 }
